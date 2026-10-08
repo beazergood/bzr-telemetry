@@ -1,0 +1,38 @@
+{
+  "name": "bzr-telemetry",
+  "version": "0.1.0",
+  "description": "One PostHog vocabulary for every personal app — web, Angular and Swift.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./web": { "types": "./dist/web/index.d.ts", "default": "./dist/web/index.js" },
+    "./angular": { "types": "./dist/angular/index.d.ts", "default": "./dist/angular/index.js" }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "test": "npm run build && node --test test/"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=19",
+    "@angular/router": ">=19",
+    "posthog-js": "^1.200.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/core": { "optional": true },
+    "@angular/router": { "optional": true },
+    "posthog-js": { "optional": true }
+  },
+  "devDependencies": {
+    "@angular/core": "^21.0.0",
+    "@angular/router": "^21.0.0",
+    "@angular/common": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
+    "posthog-js": "^1.438.0",
+    "rxjs": "^7.8.0",
+    "typescript": "~5.9.0"
+  }
+}
