@@ -1,4 +1,4 @@
-import { posthog } from 'posthog-js';
+import type { PostHog } from 'posthog-js';
 import { Telemetry, type Properties, type TelemetryConfig, type TelemetryProvider } from '../index.js';
 
 export interface WebTelemetryConfig extends TelemetryConfig {
@@ -10,37 +10,53 @@ export interface WebTelemetryConfig extends TelemetryConfig {
   captureExceptions?: boolean;
 }
 
+/**
+ * posthog-js is ~90 kB gzipped, so it is loaded as its own chunk after
+ * bootstrap rather than in the app's initial bundle — and not at all when
+ * telemetry is disabled. Calls made before it arrives queue on the promise and
+ * replay in order.
+ */
 export class PostHogBrowserProvider implements TelemetryProvider {
+  private client?: Promise<PostHog>;
+
   init(config: TelemetryConfig, standard: Properties): void {
     const web = config as WebTelemetryConfig;
-    posthog.init(config.apiKey as string, {
-      api_host: config.host,
-      person_profiles: 'identified_only',
-      // Page views are captured by the adapter so SPA navigations count once, not per history push.
-      capture_pageview: false,
-      autocapture: web.autocapture ?? false,
-      disable_session_recording: !(web.sessionReplay ?? false),
-      session_recording: { maskAllInputs: true },
-      capture_exceptions: web.captureExceptions ?? true,
+    this.client = import('posthog-js').then(({ posthog }) => {
+      posthog.init(config.apiKey as string, {
+        api_host: config.host,
+        person_profiles: 'identified_only',
+        // Page views are captured by the adapter so SPA navigations count once, not per history push.
+        capture_pageview: false,
+        autocapture: web.autocapture ?? false,
+        disable_session_recording: !(web.sessionReplay ?? false),
+        session_recording: { maskAllInputs: true },
+        capture_exceptions: web.captureExceptions ?? true,
+      });
+      // Registered as super properties too, so PostHog's own events ($exception, $autocapture) carry the app.
+      posthog.register(standard);
+      return posthog;
     });
-    // Registered as super properties too, so PostHog's own events ($exception, $autocapture) carry the app.
-    posthog.register(standard);
   }
 
   capture(event: string, properties: Properties): void {
-    posthog.capture(event, properties);
+    this.with((p) => p.capture(event, properties));
   }
 
   identify(distinctId: string, properties?: Properties): void {
-    posthog.identify(distinctId, properties);
+    this.with((p) => p.identify(distinctId, properties));
   }
 
   reset(): void {
-    posthog.reset();
+    this.with((p) => p.reset());
   }
 
   captureException(error: unknown, properties: Properties): void {
-    posthog.captureException(error, properties);
+    this.with((p) => p.captureException(error, properties));
+  }
+
+  private with(fn: (posthog: PostHog) => void): void {
+    // A failed chunk load must never surface as an app error.
+    this.client?.then(fn).catch(() => undefined);
   }
 }
 

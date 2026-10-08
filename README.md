@@ -81,11 +81,12 @@ telemetry.screen("Net worth")
 ## Installing in an app
 
 ```sh
-npm install github:beazergood/bzr-telemetry#v0.1.0
+npm install https://github.com/beazergood/bzr-telemetry/releases/download/v0.1.1/bzr-telemetry-0.1.1.tgz
 ```
 
-The `prepare` script builds on install. Docker builds need `git` in the build
-image and access to the repo.
+Install from the release tarball, not `github:…`: a git dependency records a
+`git+ssh` URL in the lockfile, which breaks `npm ci` in slim Docker images with
+no git or SSH. Each release attaches the `npm pack` output.
 
 ## Development
 

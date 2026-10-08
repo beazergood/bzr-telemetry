@@ -1,6 +1,6 @@
 {
   "name": "bzr-telemetry",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "One PostHog vocabulary for every personal app — web, Angular and Swift.",
   "license": "MIT",
   "type": "module",
