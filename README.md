@@ -84,7 +84,7 @@ telemetry.screen("Net worth")
 ## Installing in an app
 
 ```sh
-npm install https://github.com/beazergood/bzr-telemetry/releases/download/v0.2.0/bzr-telemetry-0.2.0.tgz
+npm install https://github.com/beazergood/bzr-telemetry/releases/download/v0.2.1/bzr-telemetry-0.2.1.tgz
 ```
 
 Install from the release tarball, not `github:…`: a git dependency records a
