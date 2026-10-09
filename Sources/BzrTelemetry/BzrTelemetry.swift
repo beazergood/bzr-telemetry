@@ -24,6 +24,8 @@ public struct BzrTelemetryConfig {
     public var host: String
     public var app: String
     public var appVersion: String?
+    /// Session replay. Off by default; when on, all text, inputs and images are masked — journeys, never content.
+    public var sessionReplay: Bool
 
     public init(
         product: String,
@@ -31,7 +33,8 @@ public struct BzrTelemetryConfig {
         apiKey: String?,
         host: String,
         app: String = "ios",
-        appVersion: String? = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        appVersion: String? = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+        sessionReplay: Bool = false
     ) {
         self.product = product
         self.env = env
@@ -39,6 +42,7 @@ public struct BzrTelemetryConfig {
         self.host = host
         self.app = app
         self.appVersion = appVersion
+        self.sessionReplay = sessionReplay
     }
 
     var standardProperties: [String: Any] {
@@ -112,6 +116,19 @@ public struct PostHogProvider: BzrTelemetryProvider {
     public func setup(_ config: BzrTelemetryConfig, standard: [String: Any]) {
         let posthog = PostHogConfig(projectToken: config.apiKey ?? "", host: config.host)
         posthog.personProfiles = .identifiedOnly
+        #if os(iOS)
+        if config.sessionReplay {
+            posthog.sessionReplay = true
+            let replay = posthog.sessionReplayConfig
+            // SwiftUI renders to drawing views the wireframe mode can't see; screenshots + masks can.
+            replay.screenshotMode = true
+            // In SwiftUI this masks every Text, not just inputs — money is plain text.
+            replay.maskAllTextInputs = true
+            replay.maskAllImages = true
+            replay.maskAllSandboxedViews = true
+            replay.captureNetworkTelemetry = false
+        }
+        #endif
         PostHogSDK.shared.setup(posthog)
         // Super properties too, so PostHog's own lifecycle and screen events carry the app.
         PostHogSDK.shared.register(standard)

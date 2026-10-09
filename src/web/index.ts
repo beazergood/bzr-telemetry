@@ -4,7 +4,7 @@ import { Telemetry, type Properties, type TelemetryConfig, type TelemetryProvide
 export interface WebTelemetryConfig extends TelemetryConfig {
   /** PostHog autocapture of clicks and inputs. Off by default: named events are the point of the exercise. */
   autocapture?: boolean;
-  /** Session replay. Off by default; inputs are always masked when on. */
+  /** Session replay. Off by default; when on, every input and every text node is masked — journeys, never content. */
   sessionReplay?: boolean;
   /** Window errors and unhandled rejections. Frameworks that swallow errors (Angular) also need their own hook. */
   captureExceptions?: boolean;
@@ -29,7 +29,8 @@ export class PostHogBrowserProvider implements TelemetryProvider {
         capture_pageview: false,
         autocapture: web.autocapture ?? false,
         disable_session_recording: !(web.sessionReplay ?? false),
-        session_recording: { maskAllInputs: true },
+        // '*' masks all text, not just inputs: these apps show money as plain text.
+        session_recording: { maskAllInputs: true, maskTextSelector: '*' },
         capture_exceptions: web.captureExceptions ?? true,
       });
       // Registered as super properties too, so PostHog's own events ($exception, $autocapture) carry the app.

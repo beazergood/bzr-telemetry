@@ -62,7 +62,9 @@ const telemetry = createWebTelemetry({ product: 'dosh', env: 'prod', apiKey, hos
 telemetry.capture(EVENTS.appLoaded);
 ```
 
-Autocapture and session replay are off by default — opt in per app.
+Autocapture and session replay are off by default — opt in per app (`sessionReplay: true`
+on both web and Swift). Replay always masks every input and every piece of text (and, on
+iOS, images): you see the journey, never the content.
 
 ## Swift (iOS / macOS)
 
@@ -81,7 +83,7 @@ telemetry.screen("Net worth")
 ## Installing in an app
 
 ```sh
-npm install https://github.com/beazergood/bzr-telemetry/releases/download/v0.1.1/bzr-telemetry-0.1.1.tgz
+npm install https://github.com/beazergood/bzr-telemetry/releases/download/v0.2.0/bzr-telemetry-0.2.0.tgz
 ```
 
 Install from the release tarball, not `github:…`: a git dependency records a
