@@ -127,6 +127,7 @@ public struct PostHogProvider: BzrTelemetryProvider {
             replay.maskAllImages = true
             replay.maskAllSandboxedViews = true
             replay.captureNetworkTelemetry = false
+            replay.captureLogs = false
         }
         #endif
         PostHogSDK.shared.setup(posthog)

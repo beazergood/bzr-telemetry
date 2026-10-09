@@ -64,7 +64,8 @@ telemetry.capture(EVENTS.appLoaded);
 
 Autocapture and session replay are off by default — opt in per app (`sessionReplay: true`
 on both web and Swift). Replay always masks every input and every piece of text (and, on
-iOS, images): you see the journey, never the content.
+iOS, images): you see the journey, never the content. Console logs are never
+recorded, even if the PostHog project enables them.
 
 ## Swift (iOS / macOS)
 
